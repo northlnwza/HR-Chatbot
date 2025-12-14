@@ -1,0 +1,183 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "69267316-46fd-4da0-8a0a-42b45da9f70d/webhook",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "376eb968-e1d3-4b99-8885-85f6df40fc5f",
+      "name": "Webhook",
+      "webhookId": "69267316-46fd-4da0-8a0a-42b45da9f70d"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        224,
+        192
+      ],
+      "id": "66319360-ef2b-4a44-a5b0-10cdb010acb5",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "1AFHI13W4jyaVjH9",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.events[0].message.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=Role: You are an HR Automation Engine. Task: Extract intent and entities from Thai text into JSON. Current Date: {{ $now.format('yyyy-MM-dd') }}  Rules: 1. Intent: Must be 'leave_request' or 'check_balance' or 'unknown'. 2. Entities:    - type: 'sick' or 'vacation' (null if unknown)    - date: YYYY-MM-DD (Calculate relative dates like 'tomorrow')    - reason: String (or null) 3. Output: RAW JSON ONLY. No markdown (```json). No chatter.  Example Input: \"ขอลาป่วยพรุ่งนี้ ปวดหัว\" Example Output: { \"intent\": \"leave_request\", \"entities\": { \"type\": \"sick\", \"date\": \"2025-12-16\", \"reason\": \"ปวดหัว\" } }"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6aa92902-55a8-4557-ad47-82f90140cbba",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "source": "googleSheets",
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "type": "n8n-nodes-base.evaluationTrigger",
+      "typeVersion": 4.7,
+      "position": [
+        64,
+        320
+      ],
+      "id": "3c62ca1f-4d85-4087-8da7-c8c79f1c5751",
+      "name": "When fetching a dataset row"
+    },
+    {
+      "parameters": {
+        "operation": "setMetrics",
+        "expectedAnswer": "g",
+        "actualAnswer": "g",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.evaluation",
+      "typeVersion": 4.8,
+      "position": [
+        832,
+        272
+      ],
+      "id": "4bedb98a-9ee2-4446-b396-2707c3e4dc31",
+      "name": "Evaluation1"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "={{ $now }}",
+          "mode": "id"
+        }
+      },
+      "type": "n8n-nodes-base.evaluation",
+      "typeVersion": 4.8,
+      "position": [
+        624,
+        272
+      ],
+      "id": "0bc3b895-6e30-4d31-9e65-088435b53ca7",
+      "name": "Evaluation"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When fetching a dataset row": {
+      "main": [
+        [
+          {
+            "node": "Evaluation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluation": {
+      "main": [
+        [
+          {
+            "node": "Evaluation1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Bangkok",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": true,
+    "errorWorkflow": "NztD4KJzI3u6x2DR",
+    "executionTimeout": 900,
+    "timeSavedPerExecution": 1
+  },
+  "versionId": "c689738c-3a74-42bc-9efb-6d3b380d8425",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d0aed9a14df7a06c9ac4ff1a231c95d7e8810c8a44b594e60cbfca0d1ff2e9a6"
+  },
+  "id": "NztD4KJzI3u6x2DR",
+  "tags": []
+}

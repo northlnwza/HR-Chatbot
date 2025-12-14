@@ -1,0 +1,5 @@
+.env
+n8n-data/
+n8npass
+.DS_Store
+Thumbs.db
