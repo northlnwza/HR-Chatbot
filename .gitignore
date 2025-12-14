@@ -1,5 +1,5 @@
 .env
 n8n-data/
-n8npass
+n8npass.txt
 .DS_Store
 Thumbs.db
