@@ -49,4 +49,6 @@ This project describes an HR Automation Chatbot developed by a Year 2 Computer E
 
 ## Current Status
 
-The 'Happy Path' for sick leave is complete, with data saving to the database. Next steps involve handling 'Unknown' intents (chit-chat) and 'Check Balance' intents.
+The 'Happy Path' for sick leave is complete, with data saving to the database. The `README.md` file has been significantly improved for clarity and presentation on GitHub, including the addition of hyperlinked badges for the tech stack.
+
+Next steps involve handling 'Unknown' intents (chit-chat) and 'Check Balance' intents within the n8n workflow.

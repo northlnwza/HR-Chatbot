@@ -8,13 +8,13 @@
 
 <!-- Badges -->
 <p>
-  <img src="https://img.shields.io/badge/n8n-FFD54F?style=for-the-badge&logo=n8n&logoColor=black" alt="n8n"/>
-  <img src="https://img.shields.io/badge/Google%20Gemini-8E75B9?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini"/>
-  <img src="https://img.shields.io/badge/LINE-00C300?style=for-the-badge&logo=line&logoColor=white" alt="LINE"/>
-  <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase"/>
-  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL"/>
-  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"/>
-  <img src="https://img.shields.io/badge/Ngrok-0055DA?style=for-the-badge&logo=ngrok&logoColor=white" alt="Ngrok"/>
+  <a href="https://n8n.io/" target="_blank"><img src="https://img.shields.io/badge/n8n-FFD54F?style=for-the-badge&logo=n8n&logoColor=black" alt="n8n"/></a>
+  <a href="https://ai.google.dev/" target="_blank"><img src="https://img.shields.io/badge/Google%20Gemini-8E75B9?style=for-the-badge&logo=google&logoColor=white" alt="Google Gemini"/></a>
+  <a href="https://developers.line.biz/en/" target="_blank"><img src="https://img.shields.io/badge/LINE-00C300?style=for-the-badge&logo=line&logoColor=white" alt="LINE"/></a>
+  <a href="https://supabase.com/" target="_blank"><img src="https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase"/></a>
+  <a href="https://www.postgresql.org/" target="_blank"><img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL"/></a>
+  <a href="https://www.docker.com/" target="_blank"><img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker"/></a>
+  <a href="https://ngrok.com/" target="_blank"><img src="https://img.shields.io/badge/Ngrok-0055DA?style=for-the-badge&logo=ngrok&logoColor=white" alt="Ngrok"/></a>
 </p>
 
 </div>
@@ -207,6 +207,6 @@ Your services are now running!
 
 *   **Thanakrit Jomhong**
 *   *Computer Engineering Student, Mahidol University*
-*   [GitHub](https://github.com/Krothorne) | [LinkedIn](https://www.linkedin.com/in/thanakrit-jomhong-438b97287/)
+*   [GitHub](https://github.com/Krothorne) | [LinkedIn](https://www.linkedin.com/in/thanakrit-jomhong-8b600034b/)
 
 Give a ⭐️ if this project helped you!
