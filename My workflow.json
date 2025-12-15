@@ -24,7 +24,7 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        224,
+        160,
         192
       ],
       "id": "66319360-ef2b-4a44-a5b0-10cdb010acb5",
@@ -60,29 +60,6 @@
     },
     {
       "parameters": {
-        "source": "googleSheets",
-        "documentId": {
-          "__rl": true,
-          "mode": "list",
-          "value": ""
-        },
-        "sheetName": {
-          "__rl": true,
-          "mode": "list",
-          "value": ""
-        }
-      },
-      "type": "n8n-nodes-base.evaluationTrigger",
-      "typeVersion": 4.7,
-      "position": [
-        64,
-        320
-      ],
-      "id": "3c62ca1f-4d85-4087-8da7-c8c79f1c5751",
-      "name": "When fetching a dataset row"
-    },
-    {
-      "parameters": {
         "operation": "setMetrics",
         "expectedAnswer": "g",
         "actualAnswer": "g",
@@ -91,8 +68,8 @@
       "type": "n8n-nodes-base.evaluation",
       "typeVersion": 4.8,
       "position": [
-        832,
-        272
+        544,
+        400
       ],
       "id": "4bedb98a-9ee2-4446-b396-2707c3e4dc31",
       "name": "Evaluation1"
@@ -108,24 +85,299 @@
       "type": "n8n-nodes-base.evaluation",
       "typeVersion": 4.8,
       "position": [
-        624,
-        272
+        144,
+        384
       ],
       "id": "0bc3b895-6e30-4d31-9e65-088435b53ca7",
       "name": "Evaluation"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "leave_request",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "274fef03-4c51-4870-b7a4-2346ac12679c"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        688,
+        -16
+      ],
+      "id": "66ba2ce6-a2da-46e9-bbac-70d3a2b597b2",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nconst rawData = $input.first().json.text;\nreturn {\n  json: JSON.parse(rawData)\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        528,
+        80
+      ],
+      "id": "0ac2a535-db73-49a5-b959-6f48641c264d",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "replyToken": "={{ $('Webhook').item.json.body.events[0].replyToken }}",
+        "messages": {
+          "values": [
+            {
+              "text": "=Leave Request Received! 📝\nType: {{ $('Code in JavaScript').item.json.intent }}\nDate: {{ $('Code in JavaScript').item.json.entities.date }}\nReason: {{ $('Code in JavaScript').item.json.entities.reason }}"
+            }
+          ]
+        }
+      },
+      "type": "@aotoki/n8n-nodes-line-messaging.lineMessaging",
+      "typeVersion": 1,
+      "position": [
+        1856,
+        -16
+      ],
+      "id": "10bc7ee1-d92a-4078-a776-88aa971c4110",
+      "name": "Line Messaging1",
+      "credentials": {
+        "lineMessagingApi": {
+          "id": "ywcMulJz3h91in74",
+          "name": "Line Messaging account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "replyToken": "={{ $('Webhook').item.json.body.events[0].replyToken }}",
+        "messages": {
+          "values": [
+            {
+              "text": "={{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "type": "@aotoki/n8n-nodes-line-messaging.lineMessaging",
+      "typeVersion": 1,
+      "position": [
+        1392,
+        160
+      ],
+      "id": "c82f2fa4-3910-40c7-9ce9-bcae4a8b610f",
+      "name": "Line Messaging",
+      "credentials": {
+        "lineMessagingApi": {
+          "id": "ywcMulJz3h91in74",
+          "name": "Line Messaging account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO users (line_user_id, display_name)\nVALUES ('{{ $('Webhook').item.json.body.events[0].source.userId }}', 'Unknown')\nON CONFLICT (line_user_id) \nDO UPDATE SET is_active = TRUE\nRETURNING user_id;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1104,
+        -112
+      ],
+      "id": "271225ac-3196-48ed-ad29-1690ee511668",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "mnx6Ptx3pJz2pBO9",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO leave_requests (user_id, leave_type, start_date, end_date, reason)\nVALUES (\n  -- 1. Get the ID from the previous Postgres node\n'{{ $json.user_id }}',\n  -- 2. Get the Type from the AI (Parsed from JSON)\n  '{{ $('Switch').item.json.entities.type }}',\n  \n  -- 3. Get the Date (Using same date for Start & End for now)\n  '{{ $('Switch').item.json.entities.date }}',\n  '{{ $('Switch').item.json.entities.date }}',\n  \n  -- 4. Get the Reason\n  '{{ $('Switch').item.json.entities.reason }}'\n)\nRETURNING request_id;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1312,
+        -112
+      ],
+      "id": "0340e868-21c0-4452-b154-84e7b31fc7ec",
+      "name": "Insert Leave Request",
+      "credentials": {
+        "postgres": {
+          "id": "mnx6Ptx3pJz2pBO9",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').item.json.body.events[0].message.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a helpful HR Assistant. The user said something that is NOT a leave request. Please reply politely and briefly. If they are just saying hello, greet them. If they are asking nonsense, remind them that you are here to help with Leave Requests. Do NOT output JSON. Output plain text."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        1024,
+        80
+      ],
+      "id": "9cc95186-78be-4f27-aac6-90abd6bbbca3",
+      "name": "Basic LLM Chain1 to send a polite reply"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        304,
+        192
+      ],
+      "id": "7827f63b-1f9b-4e0a-8d3f-833d24690a4f",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "q9ZOh8D4WsS9mKte",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-flash-lite-latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        976,
+        240
+      ],
+      "id": "5413fbda-19ee-40a4-9c61-e179d34d2578",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "1AFHI13W4jyaVjH9",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        256
+      ],
+      "id": "f2cc5a74-9ee0-4a5c-892f-5a15c0fe3b89",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "q9ZOh8D4WsS9mKte",
+          "name": "Groq account"
+        }
+      }
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "sharyn-nonpeaked-nonconcurrently.ngrok-free.dev",
+            "user-agent": "LineBotWebhook/2.0",
+            "content-length": "813",
+            "content-type": "application/json; charset=utf-8",
+            "x-forwarded-for": "147.92.150.194",
+            "x-forwarded-host": "sharyn-nonpeaked-nonconcurrently.ngrok-free.dev",
+            "x-forwarded-proto": "https",
+            "x-line-signature": "yVcqcmkxYDrXhde/eCaVEeNTKm6fLY+65J5K2W/3r0w=",
+            "accept-encoding": "gzip"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "destination": "U255237963706f7c7b45ddc7518eb60a7",
+            "events": [
+              {
+                "type": "message",
+                "message": {
+                  "type": "text",
+                  "id": "592218485355708536",
+                  "quoteToken": "WlqEVkDbGJNNtMrBAm_uh8gUNAQIBtzCLs_4SJP4tA6neCPg66ZTCPKlQxlUpM_0frPTLIhx4t3uQlTCWyQ9YkK4-fZeq1cxx7QSvHubNIyMsmsNsXFVUQTIdq0gFgugdGp9OyNstXHHrviHNZenvQ",
+                  "markAsReadToken": "Zs-wVNaeiIyKKIcCLvdswEXODQF2WcSKVLJaaiatBVsc92BUKVQ_oDBQzYpPfsqKCEgBEg0i1iMLPAVoFUefUx73I49neI_3aoUMFEXMNpx8aVPqVPh7EIgHgsHVn8Oq3WqEW_9yhhPSBoFwT4-39p0Nf9zn6hXr78gf7LbpKR2iRfe91lCIIHU5k7YqZMVxV_1dbDlrYHjZNOZj8QzFAA",
+                  "text": "hello my name is North"
+                },
+                "webhookEventId": "01KCHJ56MMNANPCQCE0KFFRQ6S",
+                "deliveryContext": {
+                  "isRedelivery": false
+                },
+                "timestamp": 1765821028505,
+                "source": {
+                  "type": "user",
+                  "userId": "U8a47505f761845b3a5033d2895920c5c"
+                },
+                "replyToken": "e455da300c2845c59f85b2d9c13c5fae",
+                "mode": "active"
+              }
+            ]
+          },
+          "webhookUrl": "https://sharyn-nonpeaked-nonconcurrently.ngrok-free.dev/webhook/69267316-46fd-4da0-8a0a-42b45da9f70d/webhook",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
   "connections": {
     "Google Gemini Chat Model": {
       "ai_languageModel": [
-        [
-          {
-            "node": "Basic LLM Chain",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Webhook": {
@@ -139,23 +391,117 @@
         ]
       ]
     },
-    "When fetching a dataset row": {
-      "main": [
-        [
-          {
-            "node": "Evaluation",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Evaluation": {
       "main": [
         [
           {
             "node": "Evaluation1",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Basic LLM Chain1 to send a polite reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Line Messaging1": {
+      "main": [
+        []
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Insert Leave Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Leave Request": {
+      "main": [
+        [
+          {
+            "node": "Line Messaging1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain1 to send a polite reply": {
+      "main": [
+        [
+          {
+            "node": "Line Messaging",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain1 to send a polite reply",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
@@ -173,7 +519,7 @@
     "executionTimeout": 900,
     "timeSavedPerExecution": 1
   },
-  "versionId": "c689738c-3a74-42bc-9efb-6d3b380d8425",
+  "versionId": "c1ca3754-f337-4629-a69d-cb60133fa1eb",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "d0aed9a14df7a06c9ac4ff1a231c95d7e8810c8a44b594e60cbfca0d1ff2e9a6"
