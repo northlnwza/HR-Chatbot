@@ -19,7 +19,6 @@
     },
     {
       "parameters": {
-        "modelName": "models/gemini-2.5-flash-lite",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
@@ -32,8 +31,8 @@
       "name": "Google Gemini Chat Model",
       "credentials": {
         "googlePalmApi": {
-          "id": "OvW0d4pRgg6b2KIR",
-          "name": "Google Gemini(PaLM) Api account 2"
+          "id": "BuGN9nUzSAqaGAxY",
+          "name": "Google Gemini(PaLM) Api account 3"
         }
       }
     },
@@ -250,7 +249,6 @@
     },
     {
       "parameters": {
-        "modelName": "models/gemini-flash-lite-latest",
         "options": {}
       },
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
@@ -263,8 +261,8 @@
       "name": "Google Gemini Chat Model1",
       "credentials": {
         "googlePalmApi": {
-          "id": "OvW0d4pRgg6b2KIR",
-          "name": "Google Gemini(PaLM) Api account 2"
+          "id": "BuGN9nUzSAqaGAxY",
+          "name": "Google Gemini(PaLM) Api account 3"
         }
       }
     },
@@ -416,7 +414,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "UPDATE leave_requests\nSET status = '{{ $json.action }}ed', -- Becomes \"approved\" or \"rejected\"\n    manager_comment = 'Auto-processed by Bot'\nWHERE request_id = {{ $json.reqId }};",
+        "query": "UPDATE leave_requests\nSET status = '{{ $json.action }}ed', -- Becomes \"approved\" or \"rejected\"\n    manager_comment = 'Auto-processed by Bot'\nWHERE request_id = {{ $json.reqId }}\nRETURNING user_id, leave_type, start_date, end_date;",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
@@ -622,6 +620,60 @@
           "name": "Line Messaging account"
         }
       }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2118fff5-0287-4a62-aedd-4348dc91a8cd",
+              "leftValue": "={{ $('Code in JavaScript1').item.json.action }}",
+              "rightValue": "approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        368,
+        48
+      ],
+      "id": "01f88524-9460-40a1-9b42-84c7992acb7c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE users\nSET\n  sick_leave_balance = CASE\n    WHEN '{{ $('Execute a SQL query2').item.json.leave_type }}' = 'sick'\n    THEN sick_leave_balance - (('{{ new Date($('Execute a SQL query2').item.json.end_date).toISOString().split('T')[0] }}'::date - '{{ new\n      Date($('Execute a SQL query2').item.json.start_date).toISOString().split('T')[0] }}'::date) + 1)\n    ELSE sick_leave_balance\n  END,\n vacation_leave_balance = CASE\n   WHEN '{{ $('Execute a SQL query2').item.json.leave_type }}' = 'vacation'\n    THEN vacation_leave_balance - (('{{ new Date($('Execute a SQL query2').item.json.end_date).toISOString().split('T')[0] }}'::date - '{{ new\n      Date($('Execute a SQL query2').item.json.start_date).toISOString().split('T')[0] }}'::date) + 1)\n   ELSE vacation_leave_balance\n  END\nWHERE user_id = {{ $('Execute a SQL query2').item.json.user_id }};\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        576,
+        -48
+      ],
+      "id": "15df2831-48b4-439a-bbcf-f11ac2a30dc1",
+      "name": "Deduction Node",
+      "credentials": {
+        "postgres": {
+          "id": "mnx6Ptx3pJz2pBO9",
+          "name": "Postgres account"
+        }
+      }
     }
   ],
   "pinData": {
@@ -631,12 +683,12 @@
           "headers": {
             "host": "sharyn-nonpeaked-nonconcurrently.ngrok-free.dev",
             "user-agent": "LineBotWebhook/2.0",
-            "content-length": "831",
+            "content-length": "375",
             "content-type": "application/json; charset=utf-8",
             "x-forwarded-for": "147.92.150.194",
             "x-forwarded-host": "sharyn-nonpeaked-nonconcurrently.ngrok-free.dev",
             "x-forwarded-proto": "https",
-            "x-line-signature": "yp/8778hYdvuPrz1clErZz0jxUterXzhl6QNivR1QYg=",
+            "x-line-signature": "r4hatQqFCtJg0+EiSq0WywcDE3UM5KJ5OLdcQs8WWk4=",
             "accept-encoding": "gzip"
           },
           "params": {},
@@ -645,24 +697,20 @@
             "destination": "U255237963706f7c7b45ddc7518eb60a7",
             "events": [
               {
-                "type": "message",
-                "message": {
-                  "type": "text",
-                  "id": "592364997360484506",
-                  "quoteToken": "8OA04FJDZtGaeeXfCl9KHKUJmX9FySUBBB83wWDJeSppYzeHENkUNmf9tdfB5_5a9jLN4u_6Ok8bsnx_phtNzWLF_NuKMl39dJUBH_q4OvgssyY1kA-Co2TRnUrELQk65i2n9-7PyuRaRIGm9Mb28Q",
-                  "markAsReadToken": "nW5RjW92wRQgd5vFhfRCHIqGXgnyQiIAO3uzdLTZ91MS7GbHPGMmPeIZa5MGE1m9dF86azCkW6WZ60sxn5g9zGagZ6BM10ywWCAAcBxTZhsIXZkheGBgv7TtpoVMJnYjTSlBVVyyF8C1NNf33C7Tdo_VRni7x1PVdv7_LWpoHKxdrXSuvwHzDzBli-u8-LLJKlRNge-DX0MwN-UHoD6scw",
-                  "text": "ลาไปเที่ยว1000ปี"
+                "type": "postback",
+                "postback": {
+                  "data": "action=approve&reqId=20"
                 },
-                "webhookEventId": "01KCM5E7VA040FWR9FCYNWBK9Y",
+                "webhookEventId": "01KDNBC2TH33SJJQ88SZD5ANZV",
                 "deliveryContext": {
                   "isRedelivery": false
                 },
-                "timestamp": 1765908356461,
+                "timestamp": 1767021873497,
                 "source": {
                   "type": "user",
                   "userId": "U8a47505f761845b3a5033d2895920c5c"
                 },
-                "replyToken": "d82410b11cb649e78426f47a35952d92",
+                "replyToken": "37bf04c918514577adc3b19664c4e3a9",
                 "mode": "active"
               }
             ]
@@ -893,7 +941,35 @@
     },
     "Success Request MSG": {
       "main": [
-        []
+        [
+          {
+            "node": "Notify to Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Line Messaging4": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Deduction Node",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },
@@ -908,7 +984,7 @@
     "executionTimeout": 900,
     "timeSavedPerExecution": 1
   },
-  "versionId": "583a36ff-0039-475c-9e56-86d66ebe45e2",
+  "versionId": "819db06f-7192-4d9c-8e8f-835aa4368ba2",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "d0aed9a14df7a06c9ac4ff1a231c95d7e8810c8a44b594e60cbfca0d1ff2e9a6"
