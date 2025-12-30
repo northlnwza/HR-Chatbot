@@ -3,3 +3,4 @@ n8n-data/
 .DS_Store
 Thumbs.db
 n8npass.txt
+.gemini-temp/

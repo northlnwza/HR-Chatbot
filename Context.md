@@ -47,6 +47,17 @@ Manages conversational context for multi-turn interactions.
 | `draft_data` | JSONB | '{}' | Temporary storage for incomplete requests |
 | `last_updated` | TIMESTAMP | NOW() | |
 
+### Table: `leave_calendar`
+Stores each individual day an employee is on leave, derived from approved `leave_requests`.
+| Column | Type | Details |
+| :--- | :--- | :--- |
+| `id` | SERIAL | Primary Key |
+| `request_id` | INT | FK referencing `leave_requests(request_id)` ON DELETE CASCADE |
+| `employee_id` | INT | FK referencing `users(user_id)` ON DELETE RESTRICT |
+| `date` | DATE | |
+| `leave_type` | VARCHAR | Denormalized for faster read queries (sick, vacation, etc.) |
+| `UNIQUE (employee_id, date)` | | Ensures an employee cannot be on multiple types of leave on the same day |
+
 ### Sample Data (SQL)
 ```sql
 INSERT INTO users (line_user_id, display_name, role) VALUES 
@@ -111,11 +122,25 @@ INSERT INTO users (line_user_id, display_name, role) VALUES
 *   [x] Approval Workflow (Handle Approve/Reject postbacks).
 *   [x] Basic Validation (Prevent requests exceeding balance).
 *   [x] AI Integration (Intent/Entity Extraction).
+*   [x] Approval Logic: Implemented SQL transaction to deduct balance when status becomes 'approved'.
+*   [x] Leave Calendar Module: Design and database schema (`leave_calendar` table) defined in `journey.md` and added to `init.sql`.
+*   [x] Leave Calendar Population: n8n workflows implemented to populate `leave_calendar` upon approval.
+*   [x] Leave Calendar Queries: Chatbot can answer "Who is on leave?" using natural language.
 
 ### Known Issues / Anomalies ⚠️
+*   **Request Cancellation Bugs:**
+    *   **Invalid Reply Token:** The "Confirm Cancellation" node fails with "Bad request - Invalid reply token". This suggests the token is not being passed correctly from the webhook through the cancellation branch.
+    *   **Balance Refund Failure:** The "Process Cancellation" node executes successfully, but the user's leave balance in the `users` table is not updating (refunding) as expected for approved leaves.
 *   **Disconnected Node:** The `Notify to Manager` node (Flex Message) appears to be disconnected in the current `workflow.json`. It typically should follow the `Success Request MSG` node.
 
 ### Next Steps 🚀
-1.  **Approval Logic:** Implement SQL transaction to deduct balance when status becomes 'approved'.
-2.  **Deployment:** Move from local Ngrok tunnel to cloud hosting (e.g., Render, Railway, or VPS).
-3.  **Refinement:** Improve error handling and user feedback loops.
+1.  **Fix Cancellation Logic:** Debug and resolve the reply token and balance refund issues.
+2.  **Deployment:** Move from local Ngrok tunnel to cloud hosting (e.g., Render, Railway, or VPS) for 24/7 availability.
+3.  **Refinement:** Improve error handling (e.g., if Gemini fails) and user feedback loops.
+4.  **Manager Dashboard (Optional):** Create a simple web view for managers to see a monthly calendar, as text lists can get long.
+
+## 7. Operational Guidelines
+*   **Text/Code for User Copying:** **ALWAYS** write any text intended for the user to copy (code snippets, SQL, JSON, commit messages, draft emails, etc.) to a temporary file in the `.gemini-temp/` directory. **NEVER** output large blocks of copy-paste text directly in the chat. Provide the file path to the user.
+*   **Workflow Modification:** Avoid modifying `workflow.json` directly via scripts, as it is error-prone. Instead, provide clear, step-by-step instructions for the user to manually perform the changes in the n8n UI, supported by the code snippets mentioned above.
+*   **Workflow Sync:** Upon completing any task involving n8n workflow changes, explicitly ask the user if they want to run the export script to sync their local `workflow.json` with the live container state.
+*   **Documentation Clean-up:** Renamed 'HR Chatbot' folder to 'project_docs' and simplified filenames for SRS and Timeline.

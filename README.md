@@ -117,7 +117,7 @@ Your services are now running!
 
 2.  **Import the Workflow:**
     *   From the n8n canvas, click **Import from File**.
-    *   Select the `My workflow.json` file from the project directory.
+    *   Select the `workflows/workflow.json` file from the project directory.
 
 3.  **Connect Your Credentials:**
     The workflow is imported, but you need to connect your accounts. Find the following nodes and add your credentials:
@@ -142,7 +142,7 @@ Your services are now running!
 ### 🗄️ Step 4: Set Up the Database Schema
 
 1.  **Go to your Supabase project** and open the **SQL Editor**.
-2.  Copy and run the SQL script below to create the necessary tables.
+2.  Copy the content of `database/init.sql` and run it to create the necessary tables.
 
     <details>
     <summary>Click to view SQL Schema</summary>
