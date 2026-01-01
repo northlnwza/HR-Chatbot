@@ -33,3 +33,5 @@ CREATE TABLE leave_calendar (
     UNIQUE (employee_id, date) -- Ensures an employee cannot be on multiple types of leave on the same day
 );
 
+ALTER TABLE leave_calendar
+ADD COLUMN google_event_id VARCHAR(255);

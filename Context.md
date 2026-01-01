@@ -56,6 +56,7 @@ Stores each individual day an employee is on leave, derived from approved `leave
 | `employee_id` | INT | FK referencing `users(user_id)` ON DELETE RESTRICT |
 | `date` | DATE | |
 | `leave_type` | VARCHAR | Denormalized for faster read queries (sick, vacation, etc.) |
+| `google_event_id` | VARCHAR | Stores the ID of the corresponding Google Calendar event |
 | `UNIQUE (employee_id, date)` | | Ensures an employee cannot be on multiple types of leave on the same day |
 
 ### Sample Data (SQL)
@@ -151,6 +152,7 @@ This setup allows n8n to securely access and manage events on the specified Goog
 *   [x] Leave Calendar Population: n8n workflows implemented to populate `leave_calendar` upon approval.
 *   [x] Leave Calendar Queries: Chatbot can answer "Who is on leave?" using natural language.
 *   [x] Google Calendar Sync: Automatically create events on approval and delete them on cancellation.
+*   [x] Robust Calendar Generation: Workflow now gracefully handles leave requests that fall entirely on non-working days (weekends/holidays), ensuring the process completes and the user is notified.
 
 ### Known Issues / Anomalies ⚠️
 *   **None currently**
