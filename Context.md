@@ -128,16 +128,11 @@ INSERT INTO users (line_user_id, display_name, role) VALUES
 *   [x] Leave Calendar Queries: Chatbot can answer "Who is on leave?" using natural language.
 
 ### Known Issues / Anomalies ⚠️
-*   **Request Cancellation Bugs:**
-    *   **Invalid Reply Token:** The "Confirm Cancellation" node fails with "Bad request - Invalid reply token". This suggests the token is not being passed correctly from the webhook through the cancellation branch.
-    *   **Balance Refund Failure:** The "Process Cancellation" node executes successfully, but the user's leave balance in the `users` table is not updating (refunding) as expected for approved leaves.
-*   **Disconnected Node:** The `Notify to Manager` node (Flex Message) appears to be disconnected in the current `workflow.json`. It typically should follow the `Success Request MSG` node.
+*   **None currently**
 
 ### Next Steps 🚀
-1.  **Fix Cancellation Logic:** Debug and resolve the reply token and balance refund issues.
-2.  **Deployment:** Move from local Ngrok tunnel to cloud hosting (e.g., Render, Railway, or VPS) for 24/7 availability.
-3.  **Refinement:** Improve error handling (e.g., if Gemini fails) and user feedback loops.
-4.  **Manager Dashboard (Optional):** Create a simple web view for managers to see a monthly calendar, as text lists can get long.
+1.  **Deployment:** Move from local Ngrok tunnel to cloud hosting (e.g., Render, Railway, or VPS) for 24/7 availability.
+2.  **Manager Dashboard (Optional):** Create a simple web view for managers to see a monthly calendar, as text lists can get long.
 
 ## 7. Operational Guidelines
 *   **Text/Code for User Copying:** **ALWAYS** write any text intended for the user to copy (code snippets, SQL, JSON, commit messages, draft emails, etc.) to a temporary file in the `.gemini-temp/` directory. **NEVER** output large blocks of copy-paste text directly in the chat. Provide the file path to the user.
