@@ -113,6 +113,30 @@ INSERT INTO users (line_user_id, display_name, role) VALUES
     *   **Line Messaging Api:** For sending replies and Flex messages.
     *   **Postgres:** For connecting to Supabase.
     *   **Groq Api:** Used in some alternative Chat Model nodes (check if active).
+*   **Google Calendar (OAuth2):** For syncing approved leaves to an external Google Calendar.
+
+### Google Calendar OAuth2 Setup
+
+To integrate with Google Calendar for external syncing, follow these steps to set up OAuth2 credentials:
+
+1.  **Google Cloud Console (console.cloud.google.com):**
+    *   **Create Project:** If you don't have one, create a new Google Cloud Project.
+    *   **Enable Google Calendar API:** Navigate to "APIs & Services" -> "Library". Search for "Google Calendar API" and enable it.
+    *   **Create OAuth Client ID:** Go to "APIs & Services" -> "Credentials". Click "CREATE CREDENTIALS" -> "OAuth client ID".
+    *   **Application Type:** Select "Web application".
+    *   **Authorized Redirect URIs:** In your n8n instance, when adding a new "Google Calendar OAuth2 API" credential, copy the "OAuth Redirect URL" provided there (e.g., `https://your-n8n-url/rest/oauth2-credential/callback`). Paste this URL into the "Authorized Redirect URIs" field in Google Cloud Console.
+    *   **Create:** This will provide you with a **Client ID** and **Client Secret**.
+    *   **OAuth Consent Screen:** Ensure your project's OAuth consent screen is configured. For testing, add your Google account as a "Test User". For production, you may need to publish the app.
+
+2.  **n8n Credentials:**
+    *   In your n8n instance, go to "Credentials".
+    *   Click "New Credential" and search for "Google Calendar OAuth2 API".
+    *   Paste the **Client ID** and **Client Secret** obtained from Google Cloud Console.
+    *   Set the **Scope** to `https://www.googleapis.com/auth/calendar`.
+    *   Click "Connect my account" and follow the Google login prompts. Log in with the Google account that has access to the shared calendar you intend to use.
+
+This setup allows n8n to securely access and manage events on the specified Google Calendar.
+
 
 ## 6. Current Status & Roadmap
 
@@ -126,6 +150,7 @@ INSERT INTO users (line_user_id, display_name, role) VALUES
 *   [x] Leave Calendar Module: Design and database schema (`leave_calendar` table) defined in `journey.md` and added to `init.sql`.
 *   [x] Leave Calendar Population: n8n workflows implemented to populate `leave_calendar` upon approval.
 *   [x] Leave Calendar Queries: Chatbot can answer "Who is on leave?" using natural language.
+*   [x] Google Calendar Sync: Automatically create events on approval and delete them on cancellation.
 
 ### Known Issues / Anomalies ⚠️
 *   **None currently**
