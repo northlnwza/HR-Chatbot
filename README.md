@@ -29,6 +29,19 @@
 *   **Scalable Workflow:** Built on n8n for easy customization and addition of new HR tasks.
 *   **Self-Hosted:** Full control over your data and infrastructure using Docker.
 
+## 🚧 Project Progress
+
+**Current Status: ~35% Complete**
+
+| Feature | Status | Notes |
+| :--- | :--- | :--- |
+| **Infrastructure** | 🟢 Ready | Docker, n8n, DB, & Tunnel active. |
+| **Leave Requests** | 🟡 Partial | DB & Intent ready. Logic pending. |
+| **Leave Calendar** | 🟡 Partial | DB table ready. Intent ready. |
+| **Balance Check** | 🟡 Partial | DB columns & Intent ready. |
+| **Reimbursement** | 🔴 Pending | No DB tables or Intent logic. |
+| **Manager Approvals**| 🔴 Pending | Basic status exists, but `approvals` table missing. |
+
 ---
 
 ## 🛠️ Tech Stack & Architecture

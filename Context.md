@@ -166,3 +166,38 @@ This setup allows n8n to securely access and manage events on the specified Goog
 *   **Workflow Modification:** Avoid modifying `workflow.json` directly via scripts, as it is error-prone. Instead, provide clear, step-by-step instructions for the user to manually perform the changes in the n8n UI, supported by the code snippets mentioned above.
 *   **Workflow Sync:** Upon completing any task involving n8n workflow changes, explicitly ask the user if they want to run the export script to sync their local `workflow.json` with the live container state.
 *   **Documentation Clean-up:** Renamed 'HR Chatbot' folder to 'project_docs' and simplified filenames for SRS and Timeline.
+
+## 8. Project Progress Analysis (as of Jan 2026)
+
+**Total Progress: ~35%**
+
+| Component | Weight | Progress | Contribution to Total |
+| :--- | :--- | :--- | :--- |
+| **1. Infrastructure & Architecture** | 20% | **95%** | **19%** |
+| **2. Database Schema** | 20% | **50%** | **10%** |
+| **3. AI/NLP (Brain)** | 20% | **60%** | **12%** |
+| **4. Workflow Logic (Execution)** | 40% | **10%** | **4%** |
+| **Total** | **100%** | | **~35%** |
+
+### Detailed Analysis
+
+#### **1. Infrastructure & Architecture (95% Done)**
+*   ✅ **Docker/Environment:** Fully set up (`docker-compose.yml`, `ngrok`, `.env`).
+*   ✅ **Tech Stack:** n8n, PostgreSQL, and Gemini are integrated.
+
+#### **2. Database Schema (50% Done)**
+*   ✅ **Implemented:** `users`, `leave_requests`, `leave_calendar`.
+*   ❌ **Missing:** `benefit_categories`, `reimbursement_requests`, `approvals`, `audit_logs`.
+
+#### **3. AI/NLP Brain (60% Done)**
+*   ✅ **Implemented:** The AI prompt handles `leave_request`, `check_balance`, and `query_leave_calendar`.
+*   ❌ **Missing:** Handling for `reimbursement` intents and `approval` commands.
+
+#### **4. Workflow Logic (10% Done)**
+*   *This is the "Action" layer where n8n actually talks to the database.*
+*   ✅ **Started:** Webhook and AI parsing nodes exist.
+*   ❌ **Missing:**
+    *   Logic to **Insert** leave requests into DB (currently just parsing).
+    *   Logic to **Query** balance (currently just parsing).
+    *   Logic to **Expand** leave dates into the Calendar.
+    *   Logic for **Reimbursements** & **Reports**.
