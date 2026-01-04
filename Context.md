@@ -155,7 +155,7 @@ This setup allows n8n to securely access and manage events on the specified Goog
 *   [x] Robust Calendar Generation: Workflow now gracefully handles leave requests that fall entirely on non-working days (weekends/holidays), ensuring the process completes and the user is notified.
 
 ### Known Issues / Anomalies ⚠️
-*   **None currently**
+*   **Duplicate Date Request Error:** When a user requests leave for a date that already has a request (or overlaps), the Approve/Reject path in n8n triggers an error. This is likely due to the `UNIQUE (employee_id, date)` constraint on the `leave_calendar` table failing during the approval expansion process.
 
 ### Next Steps 🚀
 1.  **Deployment:** Move from local Ngrok tunnel to cloud hosting (e.g., Render, Railway, or VPS) for 24/7 availability.
