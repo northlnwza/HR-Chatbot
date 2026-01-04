@@ -33,14 +33,13 @@
 
 **Current Status: ~35% Complete**
 
-| Feature | Status | Notes |
-| :--- | :--- | :--- |
-| **Infrastructure** | 🟢 Ready | Docker, n8n, DB, & Tunnel active. |
-| **Leave Requests** | 🟡 Partial | DB & Intent ready. Logic pending. |
-| **Leave Calendar** | 🟡 Partial | DB table ready. Intent ready. |
-| **Balance Check** | 🟡 Partial | DB columns & Intent ready. |
-| **Reimbursement** | 🔴 Pending | No DB tables or Intent logic. |
-| **Manager Approvals**| 🔴 Pending | Basic status exists, but `approvals` table missing. |
+| Component | Weight | Progress | Contribution to Total | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| **Infrastructure & Architecture** | 20% | **95%** | **19%** | Docker, n8n, DB, & Tunnel active. |
+| **Database Schema** | 20% | **50%** | **10%** | `users`, `leave_requests`, `leave_calendar` ready. |
+| **AI/NLP (Brain)** | 20% | **60%** | **12%** | Intent/Entity extraction implemented. |
+| **Workflow Logic (Execution)** | 40% | **10%** | **4%** | Logic for DB insertion/querying pending. |
+| **Total** | **100%** | | **~35%** | |
 
 ---
 
@@ -53,12 +52,15 @@ This project uses a modern, decoupled architecture:
 *   **Orchestration:** [n8n](https://n8n.io/) is the core engine that runs the workflow, connecting all services.
 *   **AI Engine:** [Google Gemini](https://ai.google.dev/) parses user messages and extracts structured data (JSON).
 *   **Database:** [Supabase](https://supabase.com/) (with PostgreSQL) stores all user and leave request data.
+*   **Integration:** **Google Calendar** (OAuth2) for syncing approved leave events.
 *   **Containerization:** [Docker](https://www.docker.com/) and Docker Compose manage the n8n and Ngrok services.
 
 ```
 User (LINE App) <--> LINE API <--> Ngrok Tunnel <--> n8n Webhook --> Gemini API (for NLP)
                                                                     |
                                                                     +--> Supabase/Postgres (to store data)
+                                                                    |
+                                                                    +--> Google Calendar (Sync)
                                                                     |
                                                                     +--> LINE API (to send reply)
 ```
@@ -79,6 +81,7 @@ Follow these steps to get your own instance of the HR Chatbot running.
     *   **LINE Developers Console:** Channel Access Token & Channel Secret.
     *   **Supabase:** Database connection details (Host, User, Password).
     *   **Ngrok:** Authtoken and a static domain (available on free plans).
+    *   **Google Cloud Console:** OAuth2 credentials for Calendar integration.
 
 ### ⚙️ Step 1: Clone & Configure
 
@@ -148,6 +151,8 @@ Your services are now running!
             *   **Database:** `postgres`
             *   **User/Password:** Your Supabase DB credentials.
             *   **SSL:** `Allow / No SSL`
+    *   **Google Calendar OAuth2:**
+        *   Set up credentials using Client ID/Secret from Google Cloud Console.
 
 4.  **Activate the Workflow:**
     Click the **Active** toggle at the top right of the screen to turn your workflow on. It should be green.
@@ -184,6 +189,25 @@ Your services are now running!
         status VARCHAR(50) DEFAULT 'pending',
         manager_comment TEXT,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    );
+
+    -- Manages conversational context for multi-turn interactions.
+    CREATE TABLE chat_state (
+        line_user_id VARCHAR(255) PRIMARY KEY,
+        current_mode VARCHAR(50) DEFAULT 'idle',
+        draft_data JSONB DEFAULT '{}',
+        last_updated TIMESTAMP DEFAULT NOW()
+    );
+
+    -- Stores each individual day an employee is on leave (for calendar views).
+    CREATE TABLE leave_calendar (
+        id SERIAL PRIMARY KEY,
+        request_id INT REFERENCES leave_requests(request_id) ON DELETE CASCADE,
+        employee_id INT REFERENCES users(user_id) ON DELETE RESTRICT,
+        date DATE NOT NULL,
+        leave_type VARCHAR(50),
+        google_event_id VARCHAR(255),
+        UNIQUE (employee_id, date)
     );
     ```
     </details>
